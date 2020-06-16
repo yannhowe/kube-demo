@@ -7,6 +7,16 @@
   for ($i = 0; $i <= 1000000; $i++) {
     $x += sqrt($x);
   }
+  date_default_timezone_set('America/Los_Angeles');
+  $x = 0.0001;
+  for ($i = 0; $i <= 1000000; $i++) {
+    $x += sqrt($x);
+  }
+  date_default_timezone_set('America/Los_Angeles');
+  $x = 0.0001;
+  for ($i = 0; $i <= 1000000; $i++) {
+    $x += sqrt($x);
+  }
 
   // Display Script End time
   $time_end = microtime(true);

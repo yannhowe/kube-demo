@@ -11,12 +11,13 @@ microk8s kubectl get nodes
 microk8s kubectl get services
 microk8s config > ~/.kube/config
 echo "alias kubectl='microk8s kubectl'" > ~/.bash_aliases
-microk8s enable metallb storage dns registry dashboard helm3
+microk8s enable metallb storage dns registry dashboard metrics-server
 ```
 
 Input an ip range in the same range as the VM
 ```
-# 192.168.58.150-192.168.58.200
+# 192.168.217.150-192.168.217.200
+# 192.168.217.201-192.168.217.210
 ```
 
 ## Add insecure registry to docker
@@ -38,9 +39,9 @@ token=$(microk8s kubectl -n kube-system get secret | grep default-token | cut -d
 microk8s kubectl -n kube-system describe secret $token
 ```
 
-Install demo prerequisites & build required images online
+Install demo prerequisites
 ```
-kubectl apply -f metric-server/1.8+/
+kubectl apply -f prereq
 ```
 
 # Prep Images
@@ -72,73 +73,17 @@ Clean Up environment
 kubectl delete -f .
 ```
 
-Optional: Install KubeInvaders
-```
-helm repo add kubeinvaders https://lucky-sideburn.github.io/helm-charts/
-helm repo update
-helm del -n kubeinvaders kubeinvaders
-helm install kubeinvaders --set-string target_namespace="default" --namespace kubeinvaders kubeinvaders/kubeinvaders
-```
-
 # Storytime
-Clean Up environment
-```
-kubectl delete -f .
-```
 
-## Desired State Demo
-Start up 1 pod using a document that contains all information about how to run this application.
-```
-kubectl apply -f 1_deploy_1_v1_pod.yaml
-kubectl get pods
-kubectl get deploy --watch
-```
+Prep screen
+- VSC w terminal on left, 
 
-> Kubernetes carries out all activities required to run the workload as described in the manifest, just like how an administrator would follow a proceedure or document to provision and configure a service. 
 
-Manual scaling to 2 pods by instructing Kubernetes directly.
-```
-kubectl scale --replicas=2 deployment/php-apache
-kubectl get pods
-kubectl get deploy --watch
-```
-
-Scaling to 4 pods by using a manifest. This has the benfits of being able to version and track actions done to the application.
-```
-kubectl apply -f 2_scale_to_4_pods.yaml
-kubectl get pods
-kubectl get deploy --watch
-```
-
-In another shell for ease of observation of deployment status do:
-```
-kubectl get deploy --watch
-```
-
-Kill a random pod
-```
-kubectl scale --replicas=2 deployment/php-apache
-```
-
-> Unlike an administrator, Kubernetes doesn't get tired, is able to perform actions faster and doesn't make any mistakes executing instructions. It also enables best practices from operations and security to be added to the developers code without having developers be experts in those areas. 
-
-## Autoscaling Demo
-> Being able to deploy and scale by defining the end state or intent is great but probably not as great if a human has to make decisions about how many instances of the application, or pods, should be running during busy periods. Kubernetes can do that for us. So we need to give Kubernetes some boundaries within which it can scale up the resources or the number of pods automatically based on some metric such as CPU.
-
-```
-kubectl apply -f 3_set_autoscale_pods.yaml
-kubectl get hpa --watch
+# Kubernetes Dashboard
+https://192.168.217.150/#/error?namespace=default
 
 # Generate Load
-while true; do wget -q -O- http://192.168.58.150/load.php; echo ""; done
+while true; do wget -q -O- http://192.168.217.151; echo ""; done
 
-```
-
-## Zero-Downtime Updates
-
-Rolling upgrade to pod v2
-```
-kubectl apply -f 4_upgrade_to_v2_pods.yaml
-
-kubectl rollout status deployment php-apache
-```
+# Generate 2x Load
+while true; do wget -q -O- http://192.168.217.151/load_2x.php; echo ""; done
