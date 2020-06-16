@@ -4,6 +4,8 @@ sudo snap install microk8s --classic --channel=1.18/stable
 sudo usermod -a -G microk8s $USER
 sudo chown -f -R $USER ~/.kube
 
+sudo usermod -a -G docker $USER
+
 su - $USER
 microk8s start
 microk8s status --wait-ready
@@ -29,6 +31,12 @@ sudo nano /etc/docker/daemon.json
 {
   "insecure-registries" : ["localhost:32000", "platform.net:32000"]
 }
+
+
+# /etc/docker/daemon.json
+{
+  "insecure-registries" : ["localhost:32000"]
+}
 ```
 ```
 sudo systemctl restart docker
@@ -47,10 +55,6 @@ kubectl apply -f prereq
 # Prep Images
 Build all images for demo and push to local registry
 ```
-docker pull busybox
-docker tag busybox:latest localhost:32000/busybox
-docker push localhost:32000/busybox:latest
-
 docker build -t localhost:32000/pod:v1 pod_v1
 docker push  localhost:32000/pod:v1
 
